@@ -1,16 +1,22 @@
 #!/bin/bash
 
-case $1 in
+STATUS=$1
+WEBHOOK_URL=$2
+VERSION_NAME=$3
+
+case $STATUS in
   "success" )
     EMBED_COLOR=3066993
     STATUS_MESSAGE="Passed"
     ARTIFACT_URL="$CI_JOB_URL/artifacts/download"
+    TITLE_DESCRPTION="$VERSION_NAME Just Released🍒"
     ;;
 
   "failure" )
     EMBED_COLOR=15158332
     STATUS_MESSAGE="Failed"
     ARTIFACT_URL="Not available"
+    TITLE_DESCRPTION="🍌"
     ;;
 
   * )
@@ -80,7 +86,7 @@ else
 		"embeds": [ {
 			"color": '$EMBED_COLOR',
 			"author": {
-			"name": "Pipeline #'"$CI_PIPELINE_IID"' '"$STATUS_MESSAGE"' - '"$CI_PROJECT_PATH_SLUG"'",
+			"name": "Pipeline #'"$CI_PIPELINE_IID"' '"$STATUS_MESSAGE"' : '"$TITLE_DESCRPTION"' ",
 			"url": "'"$CI_PIPELINE_URL"'",
 			"icon_url": "https://gitlab.com/favicon.png"
 			},
@@ -109,9 +115,7 @@ else
 	}'
 fi
 
-for ARG in "$@"; do
-  echo -e "[Webhook]: Sending webhook to Discord...\\n";
+echo -e "[Webhook]: Sending webhook to Discord...\\n";
 
-  (curl --fail --progress-bar -A "GitLabCI-Webhook" -H Content-Type:application/json -H X-Author:k3rn31p4nic#8383 -d "$WEBHOOK_DATA" "$ARG" \
-  && echo -e "\\n[Webhook]: Successfully sent the webhook.") || echo -e "\\n[Webhook]: Unable to send webhook."
-done
+(curl --fail --progress-bar -A "GitLabCI-Webhook" -H Content-Type:application/json -H X-Author:k3rn31p4nic#8383 -d "$WEBHOOK_DATA" "$WEBHOOK_URL" \
+&& echo -e "\\n[Webhook]: Successfully sent the webhook.") || echo -e "\\n[Webhook]: Unable to send webhook."
